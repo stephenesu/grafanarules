@@ -72,3 +72,30 @@ Notification, Summary, Description:
 Summary: High Memory Usage on $labels.instance
 
 Description: Memory usage is above 85% on $labels.instance
+
+
+wget https://github.com/prometheus/node_exporter/releases/download/v1.8.1/node_exporter-1.8.1.linux-amd64.tar.gz
+tar -xzf node_exporter-1.8.1.linux-amd64.tar.gz
+cd node_exporter-1.8.1.linux-amd64
+./node_exporter
+
+
+sudo useradd -rs /bin/false node_exporter
+
+sudo cp node_exporter /usr/local/bin/
+
+cat <<EOF | sudo tee /etc/systemd/system/node_exporter.service
+[Unit]
+Description=Node Exporter
+After=network.target
+
+[Service]
+User=node_exporter
+ExecStart=/usr/local/bin/node_exporter
+
+[Install]
+WantedBy=default.target
+EOF
+
+sudo systemctl daemon-reexec
+sudo systemctl enable --now node_exporter
