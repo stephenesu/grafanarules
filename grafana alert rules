@@ -1,0 +1,74 @@
+Grafana Panel: Network RX/TX (Interface: enp4s0)
+RX (Inbound Traffic)
+rate(node_network_receive_bytes_total{device="enp4s0"}[5m])
+Unit: bytes/sec or bps
+Panel title: Network RX - enp4s0
+
+TX (Outbound Traffic)
+rate(node_network_transmit_bytes_total{device="enp4s0"}[5m])
+Unit: bytes/sec or bps
+Panel title: Network TX - enp4s0
+
+Grafana Alert: Server Down
+up{job="node_exporters", instance="10.10.40.2:9100"}
+This returns:
+
+1 = instance is up and responding
+
+0 = target is down (timeout or unreachable)
+
+no data = target hasn't responded at all (e.g., container/server crashed)
+Alert Condition:
+Expression B:
+
+Input: A
+
+Condition: IS BELOW 1
+
+Enable: Custom recovery threshold set to 1
+
+Monitor All Servers (Not Just One)
+up{job="node_exporters"}
+
+
+Disk Usage Alert
+100 * (node_filesystem_size_bytes{mountpoint="/",fstype!="tmpfs"} - node_filesystem_free_bytes{mountpoint="/",fstype!="tmpfs"})
+/ node_filesystem_size_bytes{mountpoint="/",fstype!="tmpfs"}
+Format: Time series
+
+Step: auto
+
+Type: Range
+
+ Expression B (Threshold):
+Input: A
+
+Condition: IS ABOVE 90
+
+✅ Set it as the alert condition
+
+🔄 (Optional): Enable Custom recovery threshold → set to 85
+
+
+
+
+Memory Usage Alert (Used %)
+(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100
+Format: Time series
+
+Type: Range
+
+Step: 15s
+Expression C (Threshold):
+
+Input: A
+
+Condition: IS ABOVE 85
+
+✅ Click “Set C as alert condition”
+
+Notification, Summary, Description:
+
+Summary: High Memory Usage on $labels.instance
+
+Description: Memory usage is above 85% on $labels.instance
